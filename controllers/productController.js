@@ -30,7 +30,7 @@ export function createProduct(req, res) {
     });
 }
 
-// changing the code
+
 
 export function getProducts(req, res) {
 
