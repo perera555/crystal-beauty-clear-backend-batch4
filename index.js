@@ -8,11 +8,15 @@ import productRouter from './routes/productRouter.js';
 import veriifyJWT from './middleware/auth.js';
 import orderRouter from './routes/orderRouter.js';
 import dotenv from 'dotenv';
-dotenv.config()
+import cors from 'cors';
+dotenv.config() 
+ 
 
 
 
 const app = express();
+
+app.use(cors())
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
     console.log("Connected to MongoDB successfully");
@@ -28,7 +32,6 @@ app.use(veriifyJWT)
 
 
 app.use("/api/user", userRouter);
-app.use("/api/login", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/order", orderRouter);
 

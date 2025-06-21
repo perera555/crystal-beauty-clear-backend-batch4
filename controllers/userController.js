@@ -2,6 +2,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../model/user.js';
+import dotenv from'dotenv';
+dotenv.config()
+
 
 export function saveUser(req, res) {
 
@@ -51,7 +54,7 @@ export function loginUser(req, res) {
 
     }).then((user) => {
         if(user ==null){
-            res.json({
+            res.status(401).json({
                 message: "invalid email",
             })
         }else{
@@ -67,18 +70,20 @@ export function loginUser(req, res) {
                     isDissabled: user.isDisabled,
                     isEmailVerified: user.isEmailVerified,
                 }
-                const token =jwt.sign(userData,"randon456");
+                const token =jwt.sign(userData,process.env.JWT_KEY);
                 
                 res.status(200).json({
                     message: "Login successful",
                     token: token,
+                    user: userData,
                    
                 })
 
 
             } else{
-                res.json({
+                res.status(500).json({
                     message: "Invalid password",
+                    
                 })
             }
         }
