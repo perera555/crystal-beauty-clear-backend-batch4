@@ -34,8 +34,8 @@ export function createProduct(req, res) {
 
 export function getProducts(req, res) {
 
-    Product.find().then((product) => {
-        res.json(product)
+    Product.find().then((products) => {
+        res.json(products)
 
 
     }
@@ -63,21 +63,21 @@ export function deleteProduct(req, res) {
 
     }
     Product.findOneAndDelete({
-        productId : req.params.productId
-    }).then(()=>{
+        productId: req.params.productId
+    }).then(() => {
         res.json({
-            message :"product delete succesfully"
+            message: "product delete succesfully"
         })
     }
-).catch((err)=>{
+    ).catch((err) => {
 
-    res.status(500).json({
-        message:"product not deleted"
+        res.status(500).json({
+            message: "product not deleted"
+        })
     })
-})
 }
 
-    export function updateProduct(req, res) {
+export function updateProduct(req, res) {
 
     if (req.user == null) {
         res.status(403).json({
@@ -94,17 +94,31 @@ export function deleteProduct(req, res) {
 
     }
     Product.findOneAndUpdate({
-        productId : req.params.productId
-    },req.body).then(()=>{
+        productId: req.params.productId
+    }, req.body).then(() => {
         res.json({
-            message :"product update succesfully"
+            message: "product update succesfully"
         })
     }
-).catch((err)=>{
+    ).catch((err) => {
 
-    res.status(500).json({
-        message:"product not update"
+        res.status(500).json({
+            message: "product not update"
+        })
     })
-})
-    }
+}
 
+export async function getProductById(req, res) {
+    const productId = req.params.id;
+    const product = await Product.findOne({ productId: productId })
+    if (product == null) {
+        res.status(404).json({
+            message: "Product not found"
+        });
+        return
+    }
+    res.json({
+        product: product
+    })
+
+}

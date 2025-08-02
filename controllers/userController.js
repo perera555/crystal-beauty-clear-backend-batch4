@@ -38,7 +38,7 @@ user.save().then(() => {
         message: "User created successfully",
 })
 }).catch(() => {
-    res.statues(500).json({
+    res.status(500).json({
         message: "user not saved",
         
 });
@@ -67,18 +67,19 @@ export function loginUser(req, res) {
                     lastName: user.lastName,
                     phone: user.phone,
                     role: user.role,
-                    isDissabled: user.isDisabled,
+                    isDissabled: user.isDissabled,
                     isEmailVerified: user.isEmailVerified,
                 }
                 const token =jwt.sign(userData,process.env.JWT_KEY);
-                
+
                 res.status(200).json({
                     message: "Login successful",
+                    
                     token: token,
                     user: userData,
+                    
                    
                 })
-
 
             } else{
                 res.status(500).json({
