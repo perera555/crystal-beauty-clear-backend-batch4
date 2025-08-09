@@ -32,35 +32,35 @@ export async function createOrder(req, res) {
 
             const lastOrderId = lastBill.orderId; // its comes String("ORD0061")
             const lastOrderNumber = lastOrderId.replace("ORD", "");//"0061"
-            const lastOrderNumberInt = parent(lastOrderNumber);//61
+            const lastOrderNumberInt = parseInt(lastOrderNumber);//61
             const newOrderNumberInt = lastOrderNumberInt + 1; //62
             const newOrderNumberStr = newOrderNumberInt.toString().padStart(4, '0')//0062
             orderData.orderId = "ORD" + newOrderNumberStr;
         }
 
-        for(let i =0; i<body.billItems.length; i++){
-            const billItems =body.billItems[i];
+        for (let i = 0; i < body.billItems.length; i++) {
+            const billItems = body.billItems[i];
 
-            const product = await Product.findOne({productId : body.billItems[i].productId}); 
+            const product = await Product.findOne({ productId: body.billItems[i].productId });
 
-            if(product == null){
+            if (product == null) {
                 res.status(404).json({
-                    message : "Product with product id" + body.billItems[i].productId + " not found"
+                    message: "Product with product id" + body.billItems[i].productId + " not found"
                 })
                 return;
             }
             //if not null
 
-            orderData.billItems[i]={
+            orderData.billItems[i] = {
                 productId: product.productId,
                 productName: product.name,
-                image : product.images[0],
+                image: product.images[0],
                 price: product.price,
-                quantity: body.billItems[i].quantity,   
+                quantity: body.billItems[i].quantity,
 
             }
-            orderData.total=orderData.total + product.price * body.billItems[i].quantity
-        
+            orderData.total = orderData.total + product.price * body.billItems[i].quantity
+
         }
 
         const order = new Order(orderData);
@@ -81,35 +81,65 @@ export async function createOrder(req, res) {
 
 
 }
-export function getOrders(req,res){
-    if(req.user == null){
+export function getOrders(req, res) {
+    if (req.user == null) {
         res.status(401).json({
-            message : "Unauthorized"
+            message: "Unauthorized"
         })
         return;
     }
-    if(req.user.role == "admin"){
+    if (req.user.role == "admin") {
         Order.find().then(
-            (orders)=>{
+            (orders) => {
                 res.json(orders)
             }
-        ).catch((err)=>{
+        ).catch((err) => {
             res.status(500).json({
-                message :"orders not found"
+                message: "orders not found"
             })
         })
 
-    }else{
+    } else {
         Order.find({
-            email : req.user.email
-        }).then((orders)=>{
+            email: req.user.email
+        }).then((orders) => {
             res.json(orders)
         }
-    ).catch((err)=>{
-        res.status(500).json({
-            message:"order not found"
+        ).catch((err) => {
+            res.status(500).json({
+                message: "order not found"
+            })
         })
-    })
     }
-        
+
+}
+export async function updateOrder(req, res) {
+    try {
+        if (req.user == null) {
+            res.status(401).json({
+                message: "unathorized"
+            })
+
+            return
+        }
+        if (req.user.role != "admin") {
+            res.status(403).json({
+                message: "you are not authorized to update an order"
+            })
+            return
+        }
+
+        const orderId = req.params.orderId
+        const order = await Order.findOneAndUpdate({ orderId: orderId }, req.body)
+        res.json({
+            message: "order update successfully"
+        })
+
+    } catch(err) {
+        res.status(500).json({
+            message: "Order Not Update"
+        })
     }
+
+
+}
